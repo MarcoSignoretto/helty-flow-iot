@@ -154,7 +154,7 @@ mqtt:
       unique_id: helty_flow_vmc_your_device_name_fan
       command_topic: "vmcs/your_device_name/cmnd/speed"
       state_topic: "vmcs/your_device_name/state"
-      speed_range_min: 0
+      speed_range_min: 1
       speed_range_max: 7
       qos: 0
       # Optional: You might need to map speed values if 0-7 doesn't directly correspond

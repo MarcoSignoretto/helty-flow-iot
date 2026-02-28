@@ -81,15 +81,18 @@ char buffer [10];
 char output [256];
 
 // MQTT topics
-const char* TOPIC_LWT =  "vmcs/vmc_letto/LWT";             // last will testament
-const char* TOPIC_CMD =  "vmcs/vmc_letto/cmnd/#";          // all commands
-const char* TOPIC_CMD1 = "vmcs/vmc_letto/cmnd/teleperiod"; // setup TelePeriod command
-const char* TOPIC_CMD2 = "vmcs/vmc_letto/cmnd/speed";      // set speed command
+String LWT_TOPIC;
+String CMD_TOPIC;
+String CMD1_TOPIC;
+String CMD2_TOPIC;
+String TELE_TOPIC;
+String TELE1_TOPIC;
+String TELE2_TOPIC;
 
-// answers to command
-const char* TOPIC_TELE =  "vmcs/vmc_letto/state";          // speed status
-const char* TOPIC_TELE1 = "vmcs/vmc_letto/teleperiod";     // MQTT update period
-const char* TOPIC_TELE2 = "vmcs/vmc_letto/info";           // info
+// Helper function to build MQTT topics
+String buildMqttTopic(const char* suffix) {
+  return String("vmcs/") + String(ESP_DEVICE_NAME) + String("/") + String(suffix);
+}
 
 
 // initialize libraries for modbus
@@ -177,13 +180,13 @@ uint16_t rdIreg(uint16_t ADDRESS) {
 //
 void mqtt_connect() {
   // Connect to MQTT broker
-  if (client.connect("VMC_Letto", mqttUser, mqttPassword,TOPIC_LWT,1,true,"Offline" )) {
+  if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, true, "Offline")) {
     // Connection to MQTT successful
-    Serial.println("Connected!");  
+    Serial.println("Connected!");
     // Subscribe to settings topics
-    client.subscribe(TOPIC_CMD);    // subscribe to all command topics
-    client.publish(TOPIC_TELE1, itoa((int)period,buffer,10), true); // teleperiod
-    client.publish(TOPIC_LWT, "Online");  // last will testament
+    client.subscribe(CMD_TOPIC.c_str());    // subscribe to all command topics
+    client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
+    client.publish(LWT_TOPIC.c_str(), "Online");  // last will testament
 
   }
 }
@@ -200,7 +203,7 @@ void wifi_connect() {
 
     WiFi.setAutoReconnect(true);
     WiFi.persistent(true);
-    
+
   }
 }
 
@@ -208,27 +211,27 @@ void wifi_connect() {
 // Callback function for MQTT subscriptions
 //
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
- 
+
   String message = (char*)payload;
   String thetopic = (char*)topic;
-  message = message.substring(0,length);
+  message = message.substring(0, length);
   char buffer [5];
 
   // prepare MQTT message for debug
   Msg = "Message arrived in topic: " + thetopic + " -> " + message;
   Serial.println(Msg);
-  
+
   // decode subscribed messages and return confirmation
   // telegram period
-  if (thetopic == TOPIC_CMD1) {
+  if (thetopic == CMD1_TOPIC) {
     Serial.print("TelePeriod=");
     period = message.toInt();
     Serial.println(message);
-    client.publish(TOPIC_TELE1, itoa(period,buffer,10), true);
+    client.publish(TELE1_TOPIC.c_str(), itoa(period, buffer, 10), true);
   }
 
   // speed
-  if (thetopic == TOPIC_CMD2) {
+  if (thetopic == CMD2_TOPIC) {
     Serial.print("Speed=");
     speed = message.toInt();
     Serial.println(message);
@@ -236,7 +239,7 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
   Serial.println();
   Serial.println("-----------------------");
- 
+
 }
 
 
@@ -244,16 +247,26 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 // setup routine
 //
 void setup() {
-  pinMode(RE_DE,OUTPUT);  // direction pin
+  pinMode(RE_DE, OUTPUT);  // direction pin
   Serial.begin(115200);   // start serial port
   S.begin(19200, SWSERIAL_8N1); // setup software serial
   mb.begin(&S, RE_DE); // start software serial for Modbus with RE_DE pin
   mb.master();  // start Master modbus processing
 
+  // Initialize dynamic MQTT topics
+  LWT_TOPIC = buildMqttTopic("LWT");
+  CMD_TOPIC = buildMqttTopic("cmnd/#");
+  CMD1_TOPIC = buildMqttTopic("cmnd/teleperiod");
+  CMD2_TOPIC = buildMqttTopic("cmnd/speed");
+  TELE_TOPIC = buildMqttTopic("state");
+  TELE1_TOPIC = buildMqttTopic("teleperiod");
+  TELE2_TOPIC = buildMqttTopic("info");
+
+
   // Connnect to local wifi
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
- 
+
   // Wait for wifi connection
   Serial.println("Connecting to WiFi..");
   while (WiFi.status() != WL_CONNECTED) {
@@ -271,7 +284,10 @@ void setup() {
 
   // activate http server for OTA updates
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-    request->send(200, "text/plain", "Hi! I am VMC Letto.");
+    String msg = "Hi! I am ";
+    msg += ESP_DEVICE_NAME;
+    msg += ".";
+    request->send(200, "text/plain", msg);
   });
 
   // Start ElegantOTA
@@ -281,29 +297,28 @@ void setup() {
 
   // Set MQTT broker
   client.setServer(mqttServer, mqttPort);
-  
+
   // Set the callback function for MQTT subscriptions
   client.setCallback(mqtt_callback);
- 
+
   // Connect to MQTT broker
   Serial.println("Connecting to MQTT...");
   while (!client.connected()) {
     Serial.print(".");
- 
-    // Attempt connection to MQTT
-    if (client.connect("VMC_Letto", mqttUser, mqttPassword,TOPIC_LWT,1,true,"Offline" )) {
-      // Connection to MQTT successful
-      Serial.println("Connected!");  
-      // Subscribe to settings topics
-      client.subscribe(TOPIC_CMD);    // subscribe to all command topics
-      client.publish(TOPIC_TELE1, itoa((int)period,buffer,10), true); // teleperiod
-      client.publish(TOPIC_LWT, "Online"); // last will testament
 
+    // Attempt connection to MQTT
+    if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, true, "Offline")) {
+      // Connection to MQTT successful
+      Serial.println("Connected!");
+      // Subscribe to settings topics
+      client.subscribe(CMD_TOPIC.c_str());    // subscribe to all command topics
+      client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
+      client.publish(LWT_TOPIC.c_str(), "Online"); // last will testament
     }
   }
 
   value = rdHreg(SPEED_HREG);
-  client.publish(TOPIC_CMD2, itoa(value,buffer,10)); // update speed command
+  client.publish(CMD2_TOPIC.c_str(), itoa(value, buffer, 10)); // update speed command
 
 }
 
@@ -327,7 +342,7 @@ void loop() {
     }
 
     value = rdHreg(SPEED_HREG);
-    client.publish(TOPIC_TELE, itoa(value,buffer,10)); // update speed topic
+    client.publish(TELE_TOPIC.c_str(), itoa(value, buffer, 10)); // update speed topic
 
     // Add values in the document
     //
@@ -339,14 +354,14 @@ void loop() {
 
     value = rdIreg(ALARM_IREG);    // alarms
     doc["Alarm"] = value;
-    
-    
+
+
     serializeJson(doc, output);
-    client.publish(TOPIC_TELE2, output); // update alarm topic
+    client.publish(TELE2_TOPIC.c_str(), output); // update alarm topic
 
     // set next update
     time_now += period;
-    
+
   }
 
   // set speed of vmc
@@ -377,8 +392,8 @@ void loop() {
         wtHreg(SPEED_HREG, SPEED_COOL);
         break;
     }
-    
-    client.publish(TOPIC_TELE, itoa(speed,buffer,10), true);
+
+    client.publish(TELE_TOPIC.c_str(), itoa(speed, buffer, 10), true);
     speedO = speed;
   }
 

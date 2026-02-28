@@ -72,7 +72,7 @@ The NodeMCU will connect to the RS485 converter, which then connects to the VMC 
     *   **Copy** this file and rename the copy to `helty-nodemcu-firmware/secrets.h`.
     *   **Edit** `helty-nodemcu-firmware/secrets.h` and update your actual Wi-Fi credentials (`ssid`, `password`) and MQTT server details (`mqttServer`, `mqttPort`, `mqttUser`, `mqttPassword`). **Do not commit `secrets.h` to version control.**
 5.  **Review Configuration Parameters:**
-    *   Define a unique `ESP_DEVICE_NAME` for your NodeMCU (e.g., `VMC_Letto`).
+    *   Define a unique `ESP_DEVICE_NAME` in `secrets.h` (e.g., `vmc_kitchen`, `vmc_bedroom`). This name will be used to generate device-specific MQTT topics (e.g., `vmcs/your_device_name/state`).
     *   Adjust the `MODBUS_SLAVE_ID` if your VMC unit uses a different ID than the default (often `2` in the example).
     *   Verify or adjust the `RE_DE`, `RX`, `TX` pin definitions if your wiring differs.
     *   Review the Modbus register definitions (`SPEED_HREG`, `INTTEMP_IREG`, `EXTTEMP_IREG`, `ALARM_IREG`) to ensure they match your VMC's Modbus map.
@@ -96,9 +96,73 @@ The VMC communicates using Modbus RTU over RS485 with the following parameters:
 
 Once the NodeMCU is running and connected to your MQTT broker, Home Assistant can be configured to interact with it.
 
-*   **MQTT Discovery:** If your NodeMCU firmware supports MQTT discovery, Home Assistant should automatically detect and configure the VMC entities.
-*   **Manual Configuration:** Otherwise, you will need to manually configure MQTT sensors, switches, and other entities in your `configuration.yaml` based on the MQTT topics published by the NodeMCU.
-*   **Example Entities:** You can create entities like `fan.vmc_sala` for control and sensors for temperature readings.
+### MQTT Topic Structure
+
+The firmware generates MQTT topics dynamically using the `ESP_DEVICE_NAME` defined in your `secrets.h`. The base topic structure is `vmcs/<ESP_DEVICE_NAME>/<suffix>`.
+
+For example, if `ESP_DEVICE_NAME` is `vmc_kitchen`, the topics will be:
+*   Telemetry:
+    *   `vmcs/vmc_kitchen/state` (VMC speed status)
+    *   `vmcs/vmc_kitchen/teleperiod` (MQTT update interval)
+    *   `vmcs/vmc_kitchen/info` (JSON object for temperatures and alarms)
+*   Commands:
+    *   `vmcs/vmc_kitchen/cmnd/teleperiod` (set update interval)
+    *   `vmcs/vmc_kitchen/cmnd/speed` (set VMC speed)
+    *   `vmcs/vmc_kitchen/LWT` (Last Will Testament)
+
+### Example Home Assistant YAML Configuration
+
+You can use the Home Assistant MQTT integration to set up sensors and controls. Remember to replace `your_device_name` with the actual `ESP_DEVICE_NAME` you defined.
+
+```yaml
+# configuration.yaml entry
+
+mqtt:
+  sensor:
+    # VMC Speed State
+    - name: "VMC your_device_name Speed State"
+      state_topic: "vmcs/your_device_name/state"
+      qos: 0
+
+    # VMC Internal Temperature
+    - name: "VMC your_device_name Internal Temperature"
+      state_topic: "vmcs/your_device_name/info"
+      unit_of_measurement: "°C"
+      value_template: "{{ value_json.IntTemperature }}"
+      device_class: temperature
+      state_class: measurement
+      qos: 0
+
+    # VMC External Temperature
+    - name: "VMC your_device_name External Temperature"
+      state_topic: "vmcs/your_device_name/info"
+      unit_of_measurement: "°C"
+      value_template: "{{ value_json.ExtTemperature }}"
+      device_class: temperature
+      state_class: measurement
+      qos: 0
+
+    # VMC Alarm Status
+    - name: "VMC your_device_name Alarm Status"
+      state_topic: "vmcs/your_device_name/info"
+      value_template: "{{ value_json.Alarm }}"
+      qos: 0
+
+  # Example for a fan entity to control speed
+  fan:
+    - name: "Helty Flow VMC your_device_name Fan"
+      unique_id: helty_flow_vmc_your_device_name_fan
+      command_topic: "vmcs/your_device_name/cmnd/speed"
+      state_topic: "vmcs/your_device_name/state"
+      speed_range_min: 0
+      speed_range_max: 7
+      qos: 0
+      # Optional: You might need to map speed values if 0-7 doesn't directly correspond
+      # to what Home Assistant expects for fan speeds.
+```
+
+*   **MQTT Discovery:** If your NodeMCU firmware supports MQTT discovery (which this firmware does not implement by default, but could be added), Home Assistant could automatically detect and configure the VMC entities.
+*   **Manual Configuration:** You will need to manually configure MQTT sensors, switches, and other entities in your `configuration.yaml` based on the MQTT topics published by the NodeMCU.
 *   **Dashboards:** Examples of dashboards, such as those using `button-card` templates, can be found in the original thread to create a user-friendly interface for controlling the VMC and displaying its status.
 
 ## Modbus Specifics

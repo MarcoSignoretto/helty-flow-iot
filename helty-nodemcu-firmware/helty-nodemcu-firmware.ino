@@ -33,7 +33,7 @@
 // required for OTA updates
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <AsyncElegantOTA.h>
+#include <ElegantOTA.h>
 
 // required for modbus communication
 #include <ModbusRTU.h>
@@ -247,7 +247,7 @@ void setup() {
   pinMode(RE_DE,OUTPUT);  // direction pin
   Serial.begin(115200);   // start serial port
   S.begin(19200, SWSERIAL_8N1); // setup software serial
-  mb.begin(&S); // start software serial
+  mb.begin(&S, RE_DE); // start software serial for Modbus with RE_DE pin
   mb.master();  // start Master modbus processing
 
   // Connnect to local wifi
@@ -275,7 +275,7 @@ void setup() {
   });
 
   // Start ElegantOTA
-  AsyncElegantOTA.begin(&server);
+  ElegantOTA.begin(&server);
   server.begin();
   Serial.println("HTTP server started");
 

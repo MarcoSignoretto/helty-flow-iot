@@ -39,16 +39,9 @@
 #include <ModbusRTU.h>
 #include <SoftwareSerial.h>
 
-//
-//        CONFIGURATION SECTION
-// wi-fi and mqtt connection parameters
-//
-const char* ssid = "<YOUR WIFI SSID>";        // Enter your WiFi name
-const char* password =  "<YOUR WIFI PWD>";    // Enter WiFi password
-const char* mqttServer = "<MQTT IP>"; 		// MQTT host IP
-const int mqttPort = <MQTT PORT>;             // MQTT TCP port
-const char* mqttUser = "<MQTT USER>";         // MQTT username
-const char* mqttPassword = "<MQTT PWD>";     	// MQTT password
+// Include your secrets file
+#include "secrets.h"
+
 //
 //     END OF CONFIGURATION SECTION
 //

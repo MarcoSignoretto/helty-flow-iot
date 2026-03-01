@@ -104,12 +104,13 @@ The firmware generates MQTT topics dynamically using the `ESP_DEVICE_NAME` defin
 
 For example, if `ESP_DEVICE_NAME` is `vmc_kitchen`, the topics will be:
 *   Telemetry:
-    *   `vmcs/vmc_kitchen/state` (VMC speed status)
+    *   `vmcs/vmc_kitchen/state` (VMC raw speed status, 0-7 integer)
+    *   `vmcs/vmc_kitchen/fan_speed` (VMC speed as percentage, 0-100 integer)
     *   `vmcs/vmc_kitchen/teleperiod` (MQTT update interval)
     *   `vmcs/vmc_kitchen/info` (JSON object for temperatures and alarms)
 *   Commands:
     *   `vmcs/vmc_kitchen/cmnd/teleperiod` (set update interval)
-    *   `vmcs/vmc_kitchen/cmnd/speed` (set VMC speed)
+    *   `vmcs/vmc_kitchen/cmnd/speed` (set VMC speed, 0-7 integer)
     *   `vmcs/vmc_kitchen/LWT` (Last Will Testament)
 
 ### Example Home Assistant YAML Configuration

@@ -16,8 +16,8 @@ The foundation of this project is inspired by the excellent work shared in the H
 
 To set up this integration, you will need the following hardware components:
 
-*   **Alpac Helty Flow Compact VMC:** Ensure your unit has a Modbus RS485 RTU interface. The 7-pin onboard connector typically provides Modbus pins at position 5 (data+) and 4 (data-).
-*   **NodeMCU ESP8266 ESP-12F:** A popular Wi-Fi enabled microcontroller for IoT projects.
+*   **Alpac Helty Flow Compact VMC:** Ensure your unit has a Modbus RS485 RTU interface. The 7-pin onboard connector provides Modbus pins at position 4 (Modbus RX +) and 5 (Modbus RX -).
+*   **NodeMCU ESP8266 ESP-12F:** A popular Wi-Fi enabled microcontroller for IoT projects. [Example: AZ-Delivery NodeMCU Lua Lolin V3 Modul mit ESP8266-12E](https://www.az-delivery.de/it/products/nodemcu-lua-lolin-v3-modul-mit-esp8266-12e-unverlotet)
 *   **RS-485 TTL to RS485 Converter:** A module like the ANGEEK MAX485 module is required to convert TTL signals from the NodeMCU to RS485 for the VMC.
 *   **Wiring Components:**
     *   Single-sided breadboard
@@ -54,7 +54,9 @@ The NodeMCU will connect to the RS485 converter, which then connects to the VMC 
     *   `RX` (RS485 Receive): Connect to NodeMCU GPIO12 (D6)
     *   `TX` (RS485 Transmit): Connect to NodeMCU GPIO13 (D7)
 *   **RS485 Converter to VMC:**
-    *   Connect the Data+ (A) and Data- (B) terminals of the RS485 converter to the corresponding Modbus pins on your Alpac Helty Flow VMC unit (typically pin 5 for Data+ and pin 4 for Data- on the 7-pin onboard connector).
+    *   Connect the Data+ (A) and Data- (B) terminals of the RS485 converter to the VMC's Modbus pins as follows:
+        *   RS485 Data+ (A) to VMC Pin 4 (Modbus RX +)
+        *   RS485 Data- (B) to VMC Pin 5 (Modbus RX -)
 
 ## NodeMCU Firmware Setup
 

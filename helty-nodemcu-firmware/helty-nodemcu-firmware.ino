@@ -18,10 +18,7 @@
 //      vmcs/vmc_sala/cmnd/speed (0 to 7, speed setpoint)             //
 //      vmcs/vmc_sala/LWT (Last Will Testament)                       //
 //                                                                    //
-//    Version History:                                                //
-//      1.0 - Initial Tests                                           //
-//      2.0 - First working build                                     //
-//      3.0 - Moved info to json                                      //
+
 ////////////////////////////////////////////////////////////////////////
   
 // include libraries

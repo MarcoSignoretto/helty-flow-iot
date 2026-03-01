@@ -3,7 +3,8 @@
 //    ModBus gateway to Helty VMC via NodeMCU and WIFI/MQTT support   //
 //                                                                    //
 //    MQTT telemetry:                                                 //
-//      vmcs/vmc_sala/state (speed status)                            //
+//      vmcs/vmc_sala/state (speed status)    
+//      vmcs/vmc_sala/fan_speed (fan speed)                          //
 //      vmcs/vmc_sala/info  (json format)                             //
 //                    IntTemperature (internal temperature)           //
 //                    ExtTemperature (external temperature)           //
@@ -88,6 +89,7 @@ String CMD2_TOPIC;
 String TELE_TOPIC;
 String TELE1_TOPIC;
 String TELE2_TOPIC;
+String FAN_SPEED_TOPIC;
 
 // Helper function to build MQTT topics
 String buildMqttTopic(const char* suffix) {
@@ -174,6 +176,30 @@ uint16_t rdIreg(uint16_t ADDRESS) {
   return res;
 }
 
+//
+// Helper function to map internal speed (0-7) to percentage (0-100)
+//
+int mapStateToFanSpeed(int value) {
+  if (value == 0) {
+    return 0;
+  } else if (value == 1) {
+    return 1;
+  } else if (value == 2) {
+    return 2;
+  } else if (value == 3) {
+    return 3;
+  } else if (value == 4) {
+    return 4;
+  } else if (value == 5) { // Hyper Speed
+    return 4;
+  } else if (value == 6) { // Night Mode
+    return 1;
+  } else if (value == 7) { // Free Cooling
+    return 4;
+  } else {
+    return 0; // Default for unexpected values
+  }
+}
 
 //
 // MQTT connection function
@@ -259,9 +285,9 @@ void setup() {
   CMD1_TOPIC = buildMqttTopic("cmnd/teleperiod");
   CMD2_TOPIC = buildMqttTopic("cmnd/speed");
   TELE_TOPIC = buildMqttTopic("state");
+  FAN_SPEED_TOPIC = buildMqttTopic("fan_speed");
   TELE1_TOPIC = buildMqttTopic("teleperiod");
   TELE2_TOPIC = buildMqttTopic("info");
-
 
   // Connnect to local wifi
   WiFi.mode(WIFI_STA);
@@ -319,7 +345,7 @@ void setup() {
 
   value = rdHreg(SPEED_HREG);
   client.publish(CMD2_TOPIC.c_str(), itoa(value, buffer, 10)); // update speed command
-
+  client.publish(FAN_SPEED_TOPIC.c_str(), itoa(mapStateToFanSpeed(value), buffer, 10));
 }
 
 
@@ -343,6 +369,7 @@ void loop() {
 
     value = rdHreg(SPEED_HREG);
     client.publish(TELE_TOPIC.c_str(), itoa(value, buffer, 10)); // update speed topic
+    client.publish(FAN_SPEED_TOPIC.c_str(), itoa(mapStateToFanSpeed(value), buffer, 10));
 
     // Add values in the document
     //

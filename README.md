@@ -120,15 +120,16 @@ You can use the Home Assistant MQTT integration to set up sensors and controls. 
 # configuration.yaml entry
 
 mqtt:
+mqtt:
   sensor:
     # VMC Speed State
-    - name: "VMC your_device_name Speed State"
-      state_topic: "vmcs/your_device_name/state"
+    - name: "VMC vmc_living Speed State"
+      state_topic: "vmcs/vmc_living/state"
       qos: 0
 
     # VMC Internal Temperature
-    - name: "VMC your_device_name Internal Temperature"
-      state_topic: "vmcs/your_device_name/info"
+    - name: "VMC vmc_living Internal Temperature"
+      state_topic: "vmcs/vmc_living/info"
       unit_of_measurement: "°C"
       value_template: "{{ value_json.IntTemperature }}"
       device_class: temperature
@@ -136,8 +137,8 @@ mqtt:
       qos: 0
 
     # VMC External Temperature
-    - name: "VMC your_device_name External Temperature"
-      state_topic: "vmcs/your_device_name/info"
+    - name: "VMC vmc_living External Temperature"
+      state_topic: "vmcs/vmc_living/info"
       unit_of_measurement: "°C"
       value_template: "{{ value_json.ExtTemperature }}"
       device_class: temperature
@@ -145,22 +146,60 @@ mqtt:
       qos: 0
 
     # VMC Alarm Status
-    - name: "VMC your_device_name Alarm Status"
-      state_topic: "vmcs/your_device_name/info"
+    - name: "VMC vmc_living Alarm Status"
+      state_topic: "vmcs/vmc_living/info"
       value_template: "{{ value_json.Alarm }}"
       qos: 0
 
   # Example for a fan entity to control speed
   fan:
-    - name: "Helty Flow VMC your_device_name Fan"
-      unique_id: helty_flow_vmc_your_device_name_fan
-      command_topic: "vmcs/your_device_name/cmnd/speed"
-      state_topic: "vmcs/your_device_name/state"
-      speed_range_min: 1
-      speed_range_max: 7
+    - name: "Helty Flow VMC vmc_living Fan"
+      unique_id: helty_flow_vmc_vmc_living_fan
+      command_topic: "vmcs/vmc_living/cmnd/speed" # All commands go here (0-7)
+      state_topic: "vmcs/vmc_living/state" # All state feedback comes from here (0-7)
       qos: 0
-      # Optional: You might need to map speed values if 0-7 doesn't directly correspond
-      # to what Home Assistant expects for fan speeds.
+
+      # Percentage Control (for speeds 1-4)
+      percentage_command_topic: "vmcs/vmc_living/cmnd/speed"
+      percentage_state_topic: "vmcs/vmc_living/fan_speed"
+      speed_range_min: 1 # Represents 0%
+      speed_range_max: 4 # Represents 100%
+
+      # Preset Modes (for Off, Hyper Speed, Night Mode, Free Cooling)
+      preset_modes:
+        - "Off"
+        - "Hyper Speed"
+        - "Night Mode"
+        - "Free Cooling"
+        - "Normal"
+      preset_mode_command_topic: "vmcs/vmc_living/cmnd/speed"
+      preset_mode_state_topic: "vmcs/vmc_living/state"
+
+      preset_mode_command_template: >
+        {% if value == 'Off' %} 0
+        {% elif value == 'Hyper Speed' %} 5
+        {% elif value == 'Night Mode' %} 6
+        {% elif value == 'Free Cooling' %} 7
+        {% elif value == 'Normal' %} 1
+        {% else %} 0
+        {% endif %}
+
+      preset_mode_value_template: >
+        {% set speed = value | int %}
+        {% if speed == 0 %} Off
+        {% elif speed == 5 %} Hyper Speed
+        {% elif speed == 6 %} Night Mode
+        {% elif speed == 7 %} Free Cooling
+        {% else %} Normal
+        {% endif %}
+
+      # These handle the main ON/OFF state of the fan entity
+      # payload_on: "1" # Assuming any speed > 0 is ON
+      # payload_off: "0" # Assuming speed 0 is OFF
+      state_value_template: >
+        {% if value | int == 0 %} OFF
+        {% else %} ON
+        {% endif %}
 ```
 
 *   **MQTT Discovery:** If your NodeMCU firmware supports MQTT discovery (which this firmware does not implement by default, but could be added), Home Assistant could automatically detect and configure the VMC entities.

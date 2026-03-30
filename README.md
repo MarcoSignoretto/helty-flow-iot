@@ -52,7 +52,7 @@ The NodeMCU will connect to the RS485 converter, which then connects to the VMC 
 *   **NodeMCU Pinout (Example):**
     *   `RE_DE` (RS485 Transmit/Receive Enable): Connect to NodeMCU GPIO4 (D2)
     *   `RX` (RS485 Receive): Connect to NodeMCU GPIO12 (D6)
-    *   `TX` (RS485 Transmit): Connect to NodeMCU GPIO13 (D7)
+    *   `TX` (RS485 Transmit): Connect to NodeMCU GPIO5 (D1)
 *   **RS485 Converter to VMC:**
     *   Connect the Data+ (A) and Data- (B) terminals of the RS485 converter to the VMC's Modbus pins as follows:
         *   RS485 Data+ (A) to VMC Pin 4 (Modbus RX +)

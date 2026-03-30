@@ -48,9 +48,9 @@
 // RS485 setup with NodeMCU
 #define RE_DE D2  // Connect RE&DE terminal to pin GPIO4
 #define RX D6     // pin GPIO12
-#define TX D7     // pin GPIO13
+#define TX D1     // pin GPIO5
 
-#define SLAVE_ID 2        // slave ID
+#define SLAVE_ID 2        // slave ID ( default is 2)
 #define REG_COUNT 1       // registries count (does not support multiple readings)
 #define SPEED_HREG 1000   // holding register 1000 - speed
 #define INTTEMP_IREG 1000 // input register 1000 - internal temperature

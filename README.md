@@ -1,6 +1,11 @@
 # Alpac Helty Flow VMC - Home Assistant Integration (Modbus)
 
-This project aims to replicate the integration of Alpac Helty Flow VMC (Mechanical Extract Ventilation) units with Home Assistant using Modbus RTU over RS485. This allows for comprehensive control and monitoring of the VMC unit via Home Assistant.
+This project provides a complete solution for integrating Alpac Helty Flow VMC (Mechanical Extract Ventilation) units with Home Assistant. It consists of two main parts:
+1.  **NodeMCU Firmware:** A Modbus-to-MQTT bridge running on an ESP8266.
+2.  **Home Assistant Custom Integration:** A user-friendly component that automatically discovers and controls your VMC units.
+
+> [!TIP]
+> **New:** Use the [helty_flow](https://github.com/MarcoSignoretto/helty-flow-iot/tree/main/helty_flow) custom integration for a seamless, UI-based setup. No manual YAML configuration is required!
 
 The foundation of this project is inspired by the excellent work shared in the Home Assistant community forum: [Alpac Helty Flow VMC - The modbus way](https://community.home-assistant.io/t/alpac-helty-flow-vmc-the-modbus-way/578774).
 

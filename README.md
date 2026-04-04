@@ -5,7 +5,7 @@ This project provides a complete solution for integrating Alpac Helty Flow VMC (
 2.  **Home Assistant Custom Integration:** A user-friendly component that automatically discovers and controls your VMC units.
 
 > [!TIP]
-> **New:** Use the [helty_flow](https://github.com/MarcoSignoretto/helty-flow-iot/tree/main/helty_flow) custom integration for a seamless, UI-based setup. No manual YAML configuration is required!
+> **New:** Use the [helty_flow](https://github.com/MarcoSignoretto/helty-flow-iot/blob/master/helty_flow/README.md) custom integration for a seamless, UI-based setup. No manual YAML configuration is required!
 
 The foundation of this project is inspired by the excellent work shared in the Home Assistant community forum: [Alpac Helty Flow VMC - The modbus way](https://community.home-assistant.io/t/alpac-helty-flow-vmc-the-modbus-way/578774).
 

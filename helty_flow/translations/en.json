@@ -1,0 +1,47 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Add Helty Flow VMCs",
+        "description": "How would you like to add your VMC units?",
+        "menu_options": {
+          "scan": "Scan for devices automatically",
+          "manual_count": "Enter device details manually"
+        }
+      },
+      "scan": {
+        "title": "Scanning...",
+        "description": "Please wait while I scan for Helty Flow VMC units on your network (5 seconds)."
+      },
+      "scan_no_devices": {
+        "title": "No devices found",
+        "description": "I couldn't find any Helty Flow VMC units. Make sure they are powered on and connected to Wi-Fi, then try again or add them manually."
+      },
+      "select_devices": {
+        "title": "Select Devices",
+        "description": "Choose which VMC units you want to add.",
+        "data": {
+          "selected_devices": "Found Devices"
+        }
+      },
+      "manual_count": {
+        "title": "Manual Configuration",
+        "description": "How many VMC units do you want to configure?",
+        "data": {
+          "num_devices": "Number of VMC units"
+        }
+      },
+      "device_config": {
+        "title": "Configure Device {index}",
+        "description": "Enter the details for VMC device {index}.",
+        "data": {
+          "device_id": "Device ID (e.g. vmc_living)",
+          "name": "Friendly Name"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "Device is already configured"
+    }
+  }
+}

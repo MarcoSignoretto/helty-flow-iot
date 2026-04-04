@@ -1,0 +1,10 @@
+{
+  "domain": "helty_flow",
+  "name": "Helty Flow VMC",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/helty-flow-iot",
+  "codeowners": [],
+  "dependencies": ["mqtt"],
+  "iot_class": "local_polling"
+}

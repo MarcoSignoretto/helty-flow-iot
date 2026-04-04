@@ -6,6 +6,7 @@ The foundation of this project is inspired by the excellent work shared in the H
 
 ## Features
 
+*   **Custom Integration:** Easy setup via the Home Assistant UI with automatic device discovery.
 *   **VMC Control:** Adjust fan speed and operational modes of the Helty Flow VMC unit.
 *   **Sensor Monitoring:** Read internal and external temperatures, and other operational parameters from the VMC.
 *   **Alarm Status:** Monitor alarm flags, such as filter change indications.
@@ -41,7 +42,7 @@ To set up this integration, you will need the following hardware components:
     *   `SoftwareSerial` (usually built-in)
 
 *   **MQTT Server:** A running MQTT broker (e.g., Mosquitto) is essential for communication between the NodeMCU and Home Assistant.
-*   **Home Assistant:** Your Home Assistant instance to integrate and manage the VMC.
+*   **Home Assistant:** Your Home Assistant instance with the MQTT integration configured.
 
 ## Wiring and Connections
 
@@ -68,7 +69,7 @@ The NodeMCU will connect to the RS485 converter, which then connects to the VMC 
         3.  Open the file **`ElegantOTA.h`** in a text editor.
         4.  Change the line `#define ELEGANTOTA_USE_ASYNC_WEBSERVER 0` to `#define ELEGANTOTA_USE_ASYNC_WEBSERVER 1`.
         5.  Save the file and restart your Arduino IDE.
-3.  **Open the Firmware:** Open the provided `.ino` firmware file (`helty-nodemcu-firmware.ino`) in the Arduino IDE.
+3.  **Open the Firmware:** Open the provided `.ino` firmware file (`helty-nodemcu-firmware/helty-nodemcu-firmware.ino`) in the Arduino IDE.
 4.  **Configure `secrets.h`:**
     *   Locate the `helty-nodemcu-firmware/secrets.h.template` file.
     *   **Copy** this file and rename the copy to `helty-nodemcu-firmware/secrets.h`.
@@ -84,128 +85,25 @@ The NodeMCU will connect to the RS485 converter, which then connects to the VMC 
     *   Open a web browser and navigate to `http://<ESP_IP>/update` (replace `<ESP_IP>` with your NodeMCU's actual IP address).
     *   Upload the generated `.bin` file through the web interface.
 
-### Modbus Communication Parameters
-
-The VMC communicates using Modbus RTU over RS485 with the following parameters:
-
-*   **Baud Rate:** 19200
-*   **Data Bits:** 8
-*   **Parity:** None (N)
-*   **Stop Bits:** 1
-*   **Format:** 8N1
-
 ## Home Assistant Configuration
 
-Once the NodeMCU is running and connected to your MQTT broker, Home Assistant can be configured to interact with it.
+Once the NodeMCU is running and connected to your MQTT broker, you can add it to Home Assistant using the provided custom integration.
 
-### MQTT Topic Structure
+### Installation
 
-The firmware generates MQTT topics dynamically using the `ESP_DEVICE_NAME` defined in your `secrets.h`. The base topic structure is `vmcs/<ESP_DEVICE_NAME>/<suffix>`.
+1.  Copy the `helty_flow` folder into your Home Assistant's `custom_components/` directory.
+2.  Restart Home Assistant.
+3.  In Home Assistant, go to **Settings > Devices & Services**.
+4.  Click **Add Integration** and search for **Helty Flow VMC**.
+5.  Follow the on-screen instructions. You can either:
+    *   **Scan automatically:** The integration will listen for active VMC units on your MQTT broker.
+    *   **Manual configuration:** Enter the `ESP_DEVICE_NAME` you defined in your `secrets.h`.
 
-For example, if `ESP_DEVICE_NAME` is `vmc_kitchen`, the topics will be:
-*   Telemetry:
-    *   `vmcs/vmc_kitchen/state` (VMC raw speed status, 0-7 integer)
-    *   `vmcs/vmc_kitchen/fan_speed` (VMC speed as percentage, 0-100 integer)
-    *   `vmcs/vmc_kitchen/teleperiod` (MQTT update interval)
-    *   `vmcs/vmc_kitchen/info` (JSON object for temperatures and alarms)
-*   Commands:
-    *   `vmcs/vmc_kitchen/cmnd/teleperiod` (set update interval)
-    *   `vmcs/vmc_kitchen/cmnd/speed` (set VMC speed, 0-7 integer)
-    *   `vmcs/vmc_kitchen/LWT` (Last Will Testament)
+### Features of the Integration
 
-### Example Home Assistant YAML Configuration
-
-You can use the Home Assistant MQTT integration to set up sensors and controls. Remember to replace `your_device_name` with the actual `ESP_DEVICE_NAME` you defined.
-
-```yaml
-# configuration.yaml entry
-
-mqtt:
-mqtt:
-  sensor:
-    # VMC Speed State
-    - name: "VMC vmc_living Speed State"
-      state_topic: "vmcs/vmc_living/state"
-      qos: 0
-
-    # VMC Internal Temperature
-    - name: "VMC vmc_living Internal Temperature"
-      state_topic: "vmcs/vmc_living/info"
-      unit_of_measurement: "°C"
-      value_template: "{{ value_json.IntTemperature }}"
-      device_class: temperature
-      state_class: measurement
-      qos: 0
-
-    # VMC External Temperature
-    - name: "VMC vmc_living External Temperature"
-      state_topic: "vmcs/vmc_living/info"
-      unit_of_measurement: "°C"
-      value_template: "{{ value_json.ExtTemperature }}"
-      device_class: temperature
-      state_class: measurement
-      qos: 0
-
-    # VMC Alarm Status
-    - name: "VMC vmc_living Alarm Status"
-      state_topic: "vmcs/vmc_living/info"
-      value_template: "{{ value_json.Alarm }}"
-      qos: 0
-
-  # Example for a fan entity to control speed
-  fan:
-    - name: "Helty Flow VMC vmc_living Fan"
-      unique_id: helty_flow_vmc_vmc_living_fan
-      command_topic: "vmcs/vmc_living/cmnd/speed" # All commands go here (0-7)
-      state_topic: "vmcs/vmc_living/state" # All state feedback comes from here (0-7)
-      qos: 0
-
-      # Percentage Control (for speeds 1-4)
-      percentage_command_topic: "vmcs/vmc_living/cmnd/speed"
-      percentage_state_topic: "vmcs/vmc_living/fan_speed"
-      speed_range_min: 1 # Represents 0%
-      speed_range_max: 4 # Represents 100%
-
-      # Preset Modes (for Off, Hyper Speed, Night Mode, Free Cooling)
-      preset_modes:
-        - "Off"
-        - "Hyper Speed"
-        - "Night Mode"
-        - "Free Cooling"
-        - "Normal"
-      preset_mode_command_topic: "vmcs/vmc_living/cmnd/speed"
-      preset_mode_state_topic: "vmcs/vmc_living/state"
-
-      preset_mode_command_template: >
-        {% if value == 'Off' %} 0
-        {% elif value == 'Hyper Speed' %} 5
-        {% elif value == 'Night Mode' %} 6
-        {% elif value == 'Free Cooling' %} 7
-        {% elif value == 'Normal' %} 1
-        {% else %} 0
-        {% endif %}
-
-      preset_mode_value_template: >
-        {% set speed = value | int %}
-        {% if speed == 0 %} Off
-        {% elif speed == 5 %} Hyper Speed
-        {% elif speed == 6 %} Night Mode
-        {% elif speed == 7 %} Free Cooling
-        {% else %} Normal
-        {% endif %}
-
-      # These handle the main ON/OFF state of the fan entity
-      # payload_on: "1" # Assuming any speed > 0 is ON
-      # payload_off: "0" # Assuming speed 0 is OFF
-      state_value_template: >
-        {% if value | int == 0 %} OFF
-        {% else %} ON
-        {% endif %}
-```
-
-*   **MQTT Discovery:** If your NodeMCU firmware supports MQTT discovery (which this firmware does not implement by default, but could be added), Home Assistant could automatically detect and configure the VMC entities.
-*   **Manual Configuration:** You will need to manually configure MQTT sensors, switches, and other entities in your `configuration.yaml` based on the MQTT topics published by the NodeMCU.
-*   **Dashboards:** Examples of dashboards, such as those using `button-card` templates, can be found in the original thread to create a user-friendly interface for controlling the VMC and displaying its status.
+*   **Automatic Discovery:** No need to manually configure YAML sensors or fans.
+*   **Unified Device:** Each VMC appears as a single device in Home Assistant with all its sensors and fan controls grouped together.
+*   **Rich Control:** Full support for fan speeds and preset modes (Hyper Speed, Night Mode, etc.).
 
 ## Modbus Specifics
 
@@ -218,16 +116,16 @@ mqtt:
 *   **Data Model:**
     *   **Input Registers:** Read-only 16-bit words (e.g., temperatures, alarms).
     *   **Holding Registers:** Read/write 16-bit words (e.g., fan speed).
-*   **Temperature Values:** Temperatures are usually reported in 0.1 °C units, requiring a `multiply: 0.1` filter in Home Assistant/ESPHome configurations.
+*   **Temperature Values:** Temperatures are usually reported in 0.1 °C units. The integration handles this scaling automatically.
 
 ## Troubleshooting and Notes
 
-*   **Multiple VMC Units:** If you have multiple VMC units, each requires a unique Modbus ID. Changing these IDs often requires intervention from an Alpac technician.
-*   **Termination Resistors:** 120-ohm termination resistors are not typically needed for a simple 1-to-1 connection between the NodeMCU and VMC but are crucial for daisy-chained Modbus networks.
+*   **Multiple VMC Units:** Each unit requires a unique `ESP_DEVICE_NAME` in its firmware configuration.
+*   **MQTT Connection:** Ensure Home Assistant's MQTT integration is correctly configured and connected to the same broker as the NodeMCU.
 
 ## Acknowledgements
 
 Special thanks to the Home Assistant community, especially the author of the original post on the Home Assistant forum, for providing the detailed guide that made this project possible.
 
 ---
-*This README was generated with assistance from an AI.*
+*This README was updated to reflect the new custom integration.*

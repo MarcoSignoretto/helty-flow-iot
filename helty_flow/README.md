@@ -3,7 +3,7 @@
 > [!CAUTION]
 > **Disclaimer: This is not an official integration from Helty or Alpac.** This is a community-developed custom component and is not supported or endorsed by the hardware manufacturers.
 
-This integration allows you to control and monitor Helty Flow VMC units that are running the [helty-nodemcu-firmware](https://github.com/helty-flow-iot) via MQTT.
+This integration allows you to control and monitor Helty Flow VMC units that are running the [helty-nodemcu-firmware](https://github.com/MarcoSignoretto/helty-flow-iot) via MQTT.
 
 ## Features
 
@@ -14,10 +14,9 @@ This integration allows you to control and monitor Helty Flow VMC units that are
 
 ## Installation
 
-1. Copy the `ha-helty-flow` folder into your Home Assistant's `custom_components/` directory.
-2. Rename the folder to `helty_flow`.
-3. Restart Home Assistant.
-4. Go to **Settings > Devices & Services > Add Integration** and search for "Helty Flow VMC".
+1. Copy the `helty_flow` folder into your Home Assistant's `custom_components/` directory.
+2. Restart Home Assistant.
+3. Go to **Settings > Devices & Services > Add Integration** and search for "Helty Flow VMC".
 
 ## Requirements
 

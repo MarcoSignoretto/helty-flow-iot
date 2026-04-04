@@ -3,7 +3,7 @@
   "name": "Helty Flow VMC",
   "version": "1.0.0",
   "config_flow": true,
-  "documentation": "https://github.com/helty-flow-iot",
+  "documentation": "https://github.com/MarcoSignoretto/helty-flow-iot",
   "codeowners": [],
   "dependencies": ["mqtt"],
   "iot_class": "local_polling"

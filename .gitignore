@@ -1,2 +1,5 @@
 # Ignore secrets file
 helty-nodemcu-firmware/secrets.h
+
+# Obsidian settings
+.obsidian/

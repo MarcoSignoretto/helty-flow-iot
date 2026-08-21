@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //    ModBus gateway to Helty VMC via NodeMCU and WIFI/MQTT support   //
-//    Version: 1.0.1                                                  //
+//    Version: 1.0.3                                                  //
 //                                                                    //
 //    MQTT telemetry:                                                 //
 //      vmcs/vmc_sala/state (speed status)    
@@ -69,7 +69,7 @@
 #define SPEED_COOL 0x0007   // free cooling speed
 
 // firmware version (publishes to vmcs/<device_id>/version on startup)
-#define FW_VERSION "1.0.2"
+#define FW_VERSION "1.0.3"
 
 // variables
 uint16_t res;
@@ -208,7 +208,7 @@ int mapStateToFanSpeed(int value) {
 //
 void mqtt_connect() {
   // Connect to MQTT broker
-  if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, true, "Offline")) {
+  if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, false, "Offline")) {
     // Connection to MQTT successful
     Serial.println("Connected!");
     // Subscribe to settings topics with QoS 1 for reliable delivery
@@ -337,7 +337,7 @@ void setup() {
     Serial.print(".");
 
     // Attempt connection to MQTT
-    if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, true, "Offline")) {
+    if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, false, "Offline")) {
       // Connection to MQTT successful
       Serial.println("Connected!");
       // Subscribe to settings topics with QoS 1 for reliable delivery

@@ -14,6 +14,7 @@ TOPIC_FAN_SPEED = f"{TOPIC_BASE}/fan_speed"
 TOPIC_INFO = f"{TOPIC_BASE}/info"
 TOPIC_CMD_SPEED = f"{TOPIC_BASE}/cmnd/speed"
 TOPIC_LWT = f"{TOPIC_BASE}/LWT"
+TOPIC_VERSION = f"{TOPIC_BASE}/version"
 
 # Speeds & Modes
 PRESET_MODES = ["Off", "Hyper Speed", "Night Mode", "Free Cooling", "Normal"]

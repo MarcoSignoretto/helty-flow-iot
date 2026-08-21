@@ -1,7 +1,7 @@
 {
   "domain": "helty_flow",
   "name": "Helty Flow VMC",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "config_flow": true,
   "documentation": "https://github.com/MarcoSignoretto/helty-flow-iot",
   "codeowners": [],

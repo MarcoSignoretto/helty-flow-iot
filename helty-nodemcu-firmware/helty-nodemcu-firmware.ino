@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //    ModBus gateway to Helty VMC via NodeMCU and WIFI/MQTT support   //
+//    Version: 1.0.1                                                  //
 //                                                                    //
 //    MQTT telemetry:                                                 //
 //      vmcs/vmc_sala/state (speed status)    

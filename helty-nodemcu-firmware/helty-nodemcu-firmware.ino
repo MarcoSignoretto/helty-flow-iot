@@ -425,5 +425,7 @@ void loop() {
 
   // MQTT client loop
   client.loop();
+  // elegant ota loop
+  ElegantOTA.loop();
 
 }

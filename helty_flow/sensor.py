@@ -219,27 +219,3 @@ class HeltyFlowAlarmSensor(HeltyFlowBaseSensor):
                 _LOGGER.error("Invalid JSON received on %s", self._topic)
 
         await async_subscribe(self.hass, self._topic, message_received)
-
-
-class HeltyFlowVersionSensor(HeltyFlowBaseSensor):
-    """Representation of the VMC firmware version sensor."""
-
-    def __init__(self, hass: HomeAssistant, device_id: str, name: str) -> None:
-        """Initialize."""
-        super().__init__(hass, device_id, name, "Firmware Version")
-        self._topic = TOPIC_VERSION.format(device_id=device_id)
-
-    @property
-    def native_value(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    async def async_added_to_hass(self) -> None:
-        """Subscribe to MQTT topic."""
-        @callback
-        def message_received(msg):
-            """Handle new MQTT messages."""
-            self._state = str(msg.payload)
-            self.async_write_ha_state()
-
-        await async_subscribe(self.hass, self._topic, message_received)

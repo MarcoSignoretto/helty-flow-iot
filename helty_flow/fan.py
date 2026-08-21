@@ -152,13 +152,13 @@ class HeltyFlowFan(FanEntity):
             await self.async_turn_off()
         else:
             val = percentage_to_ranged_value(SPEED_RANGE, percentage)
-            await async_publish(self.hass, self._cmd_topic, str(val))
+            await async_publish(self.hass, self._cmd_topic, str(val), qos=1)
 
     async def async_set_preset_mode(self, preset_mode: str) -> None:
         """Set the preset mode of the fan."""
         if preset_mode in MODE_TO_VAL:
             val = MODE_TO_VAL[preset_mode]
-            await async_publish(self.hass, self._cmd_topic, str(val))
+            await async_publish(self.hass, self._cmd_topic, str(val), qos=1)
 
     async def async_turn_on(
         self,
@@ -173,8 +173,8 @@ class HeltyFlowFan(FanEntity):
             await self.async_set_percentage(percentage)
         else:
             # Default to speed 1 if nothing else specified
-            await async_publish(self.hass, self._cmd_topic, "1")
+            await async_publish(self.hass, self._cmd_topic, "1", qos=1)
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn off the fan."""
-        await async_publish(self.hass, self._cmd_topic, "0")
+        await async_publish(self.hass, self._cmd_topic, "0", qos=1)

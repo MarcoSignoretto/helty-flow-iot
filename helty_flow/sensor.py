@@ -64,6 +64,27 @@ class HeltyFlowBaseSensor(SensorEntity):
         self._sensor_name = sensor_name
         self._attr_unique_id = f"helty_flow_{device_id}_{sensor_name.lower().replace(' ', '_')}"
         self._state = None
+        self._attr_available = True
+        self._lwt_topic = f"vmcs/{device_id}/LWT"
+
+    @property
+    def available(self) -> bool:
+        """Return entity availability."""
+        return self._attr_available
+
+    async def _subscribe_to_lwt(self) -> None:
+        """Subscribe to the device's Last Will Testament topic for availability."""
+        @callback
+        def lwt_received(msg):
+            """Handle LWT messages."""
+            was_available = self._attr_available
+            online = msg.payload == "Online"
+            self._attr_available = online
+            # Only write state if availability changed to avoid unnecessary UI updates
+            if online and not was_available:
+                self.async_write_ha_state()
+
+        await async_subscribe(self.hass, self._lwt_topic, lwt_received)
 
     @property
     def name(self) -> str:
@@ -95,11 +116,39 @@ class HeltyFlowSpeedSensor(HeltyFlowBaseSensor):
         return self._state
 
     async def async_added_to_hass(self) -> None:
-        """Subscribe to MQTT topic."""
+        """Subscribe to MQTT topics."""
+        await self._subscribe_to_lwt()
+
         @callback
         def message_received(msg):
             """Handle new MQTT messages."""
             self._state = msg.payload
+            self.async_write_ha_state()
+
+        await async_subscribe(self.hass, self._topic, message_received)
+
+
+class HeltyFlowVersionSensor(HeltyFlowBaseSensor):
+    """Representation of the VMC firmware version sensor."""
+
+    def __init__(self, hass: HomeAssistant, device_id: str, name: str) -> None:
+        """Initialize."""
+        super().__init__(hass, device_id, name, "Firmware Version")
+        self._topic = TOPIC_VERSION.format(device_id=device_id)
+
+    @property
+    def native_value(self):
+        """Return the state of the sensor."""
+        return self._state
+
+    async def async_added_to_hass(self) -> None:
+        """Subscribe to MQTT topic."""
+        await self._subscribe_to_lwt()
+
+        @callback
+        def message_received(msg):
+            """Handle new MQTT messages."""
+            self._state = str(msg.payload)
             self.async_write_ha_state()
 
         await async_subscribe(self.hass, self._topic, message_received)
@@ -125,6 +174,8 @@ class HeltyFlowTempSensor(HeltyFlowBaseSensor):
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to MQTT topic."""
+        await self._subscribe_to_lwt()
+
         @callback
         def message_received(msg):
             """Handle new MQTT messages."""
@@ -154,6 +205,8 @@ class HeltyFlowAlarmSensor(HeltyFlowBaseSensor):
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to MQTT topic."""
+        await self._subscribe_to_lwt()
+
         @callback
         def message_received(msg):
             """Handle new MQTT messages."""

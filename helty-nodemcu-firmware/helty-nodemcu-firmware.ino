@@ -68,6 +68,9 @@
 #define SPEED_NIGHT 0x0006  // night speed
 #define SPEED_COOL 0x0007   // free cooling speed
 
+// firmware version (publishes to vmcs/<device_id>/version on startup)
+#define FW_VERSION "1.0.2"
+
 // variables
 uint16_t res;
 uint16_t value;
@@ -88,6 +91,7 @@ String TELE_TOPIC;
 String TELE1_TOPIC;
 String TELE2_TOPIC;
 String FAN_SPEED_TOPIC;
+String VERSION_TOPIC;
 
 // Helper function to build MQTT topics
 String buildMqttTopic(const char* suffix) {
@@ -211,6 +215,7 @@ void mqtt_connect() {
     client.subscribe(CMD_TOPIC.c_str(), 1);    // subscribe to all command topics
     client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
     client.publish(LWT_TOPIC.c_str(), "Online");  // last will testament
+    client.publish(VERSION_TOPIC.c_str(), FW_VERSION); // firmware version
 
   }
 }
@@ -286,6 +291,7 @@ void setup() {
   FAN_SPEED_TOPIC = buildMqttTopic("fan_speed");
   TELE1_TOPIC = buildMqttTopic("teleperiod");
   TELE2_TOPIC = buildMqttTopic("info");
+  VERSION_TOPIC = buildMqttTopic("version");
 
   // Connnect to local wifi
   WiFi.mode(WIFI_STA);
@@ -338,6 +344,7 @@ void setup() {
       client.subscribe(CMD_TOPIC.c_str(), 1);    // subscribe to all command topics
       client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
       client.publish(LWT_TOPIC.c_str(), "Online"); // last will testament
+      client.publish(VERSION_TOPIC.c_str(), FW_VERSION); // firmware version
     }
   }
 

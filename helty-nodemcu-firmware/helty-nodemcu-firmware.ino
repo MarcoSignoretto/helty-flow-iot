@@ -1,6 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //    ModBus gateway to Helty VMC via NodeMCU and WIFI/MQTT support   //
+//    Version: 1.0.1                                                  //
 //                                                                    //
 //    MQTT telemetry:                                                 //
 //      vmcs/vmc_sala/state (speed status)    
@@ -206,8 +207,8 @@ void mqtt_connect() {
   if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, true, "Offline")) {
     // Connection to MQTT successful
     Serial.println("Connected!");
-    // Subscribe to settings topics
-    client.subscribe(CMD_TOPIC.c_str());    // subscribe to all command topics
+    // Subscribe to settings topics with QoS 1 for reliable delivery
+    client.subscribe(CMD_TOPIC.c_str(), 1);    // subscribe to all command topics
     client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
     client.publish(LWT_TOPIC.c_str(), "Online");  // last will testament
 
@@ -333,8 +334,8 @@ void setup() {
     if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, true, "Offline")) {
       // Connection to MQTT successful
       Serial.println("Connected!");
-      // Subscribe to settings topics
-      client.subscribe(CMD_TOPIC.c_str());    // subscribe to all command topics
+      // Subscribe to settings topics with QoS 1 for reliable delivery
+      client.subscribe(CMD_TOPIC.c_str(), 1);    // subscribe to all command topics
       client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
       client.publish(LWT_TOPIC.c_str(), "Online"); // last will testament
     }
@@ -424,5 +425,7 @@ void loop() {
 
   // MQTT client loop
   client.loop();
+  // elegant ota loop
+  ElegantOTA.loop();
 
 }

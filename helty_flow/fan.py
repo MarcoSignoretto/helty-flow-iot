@@ -71,6 +71,13 @@ class HeltyFlowFan(FanEntity):
         self._state_topic = TOPIC_STATE.format(device_id=device_id)
         self._fan_speed_topic = TOPIC_FAN_SPEED.format(device_id=device_id)
         self._cmd_topic = TOPIC_CMD_SPEED.format(device_id=device_id)
+        self._lwt_topic = f"vmcs/{device_id}/LWT"
+        self._attr_available = True
+
+    @property
+    def available(self) -> bool:
+        """Return entity availability."""
+        return self._attr_available
 
     @property
     def name(self) -> str:
@@ -120,6 +127,15 @@ class HeltyFlowFan(FanEntity):
     async def async_added_to_hass(self) -> None:
         """Subscribe to MQTT topics."""
         @callback
+        def lwt_received(msg):
+            """Handle LWT messages for availability."""
+            was_available = self._attr_available
+            online = msg.payload == "Online"
+            self._attr_available = online
+            if online != was_available:
+                self.async_write_ha_state()
+
+        @callback
         def state_received(msg):
             """Handle new MQTT state messages."""
             try:
@@ -143,6 +159,7 @@ class HeltyFlowFan(FanEntity):
             except ValueError:
                 _LOGGER.error("Invalid fan speed received: %s", msg.payload)
 
+        await async_subscribe(self.hass, self._lwt_topic, lwt_received)
         await async_subscribe(self.hass, self._state_topic, state_received)
         await async_subscribe(self.hass, self._fan_speed_topic, fan_speed_received)
 

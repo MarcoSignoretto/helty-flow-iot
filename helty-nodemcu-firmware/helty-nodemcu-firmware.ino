@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //    ModBus gateway to Helty VMC via NodeMCU and WIFI/MQTT support   //
-//    Version: 1.0.1                                                  //
+//    Version: 1.0.3                                                  //
 //                                                                    //
 //    MQTT telemetry:                                                 //
 //      vmcs/vmc_sala/state (speed status)    
@@ -69,7 +69,7 @@
 #define SPEED_COOL 0x0007   // free cooling speed
 
 // firmware version (publishes to vmcs/<device_id>/version on startup)
-#define FW_VERSION "1.0.2"
+#define FW_VERSION "1.0.3"
 
 // variables
 uint16_t res;
@@ -214,8 +214,8 @@ void mqtt_connect() {
     // Subscribe to settings topics with QoS 1 for reliable delivery
     client.subscribe(CMD_TOPIC.c_str(), 1);    // subscribe to all command topics
     client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
-    client.publish(LWT_TOPIC.c_str(), "Online");  // last will testament
-    client.publish(VERSION_TOPIC.c_str(), FW_VERSION); // firmware version
+    client.publish(LWT_TOPIC.c_str(), "Online", true);  // last will testament
+    client.publish(VERSION_TOPIC.c_str(), FW_VERSION, true); // firmware version
 
   }
 }
@@ -343,8 +343,8 @@ void setup() {
       // Subscribe to settings topics with QoS 1 for reliable delivery
       client.subscribe(CMD_TOPIC.c_str(), 1);    // subscribe to all command topics
       client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
-      client.publish(LWT_TOPIC.c_str(), "Online"); // last will testament
-      client.publish(VERSION_TOPIC.c_str(), FW_VERSION); // firmware version
+      client.publish(LWT_TOPIC.c_str(), "Online", true); // last will testament
+      client.publish(VERSION_TOPIC.c_str(), FW_VERSION, true); // firmware version
     }
   }
 

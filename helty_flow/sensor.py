@@ -81,7 +81,7 @@ class HeltyFlowBaseSensor(SensorEntity):
             online = msg.payload == "Online"
             self._attr_available = online
             # Only write state if availability changed to avoid unnecessary UI updates
-            if online and not was_available:
+            if online != was_available:
                 self.async_write_ha_state()
 
         await async_subscribe(self.hass, self._lwt_topic, lwt_received)
@@ -143,7 +143,6 @@ class HeltyFlowVersionSensor(HeltyFlowBaseSensor):
 
     async def async_added_to_hass(self) -> None:
         """Subscribe to MQTT topic."""
-        await self._subscribe_to_lwt()
 
         @callback
         def message_received(msg):

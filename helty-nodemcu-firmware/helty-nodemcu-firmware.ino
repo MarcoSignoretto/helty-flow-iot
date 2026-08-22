@@ -208,14 +208,14 @@ int mapStateToFanSpeed(int value) {
 //
 void mqtt_connect() {
   // Connect to MQTT broker
-  if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, false, "Offline")) {
+  if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, true, "Offline")) {
     // Connection to MQTT successful
     Serial.println("Connected!");
     // Subscribe to settings topics with QoS 1 for reliable delivery
     client.subscribe(CMD_TOPIC.c_str(), 1);    // subscribe to all command topics
     client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
-    client.publish(LWT_TOPIC.c_str(), "Online");  // last will testament
-    client.publish(VERSION_TOPIC.c_str(), FW_VERSION); // firmware version
+    client.publish(LWT_TOPIC.c_str(), "Online", true);  // last will testament
+    client.publish(VERSION_TOPIC.c_str(), FW_VERSION, true); // firmware version
 
   }
 }
@@ -337,14 +337,14 @@ void setup() {
     Serial.print(".");
 
     // Attempt connection to MQTT
-    if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, false, "Offline")) {
+    if (client.connect(ESP_DEVICE_NAME, mqttUser, mqttPassword, LWT_TOPIC.c_str(), 1, true, "Offline")) {
       // Connection to MQTT successful
       Serial.println("Connected!");
       // Subscribe to settings topics with QoS 1 for reliable delivery
       client.subscribe(CMD_TOPIC.c_str(), 1);    // subscribe to all command topics
       client.publish(TELE1_TOPIC.c_str(), itoa((int)period, buffer, 10), true); // teleperiod
-      client.publish(LWT_TOPIC.c_str(), "Online"); // last will testament
-      client.publish(VERSION_TOPIC.c_str(), FW_VERSION); // firmware version
+      client.publish(LWT_TOPIC.c_str(), "Online", true); // last will testament
+      client.publish(VERSION_TOPIC.c_str(), FW_VERSION, true); // firmware version
     }
   }
 

@@ -132,7 +132,7 @@ class HeltyFlowFan(FanEntity):
             was_available = self._attr_available
             online = msg.payload == "Online"
             self._attr_available = online
-            if online and not was_available:
+            if online != was_available:
                 self.async_write_ha_state()
 
         @callback

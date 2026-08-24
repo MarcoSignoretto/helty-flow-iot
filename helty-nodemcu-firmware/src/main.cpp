@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 //                                                                    //
 //    ModBus gateway to Helty VMC via NodeMCU and WIFI/MQTT support   //
-//    Version: 1.0.3                                                  //
+//    Version: 2.0.0                                                  //
 //                                                                    //
 //    MQTT telemetry:                                                 //
 //      vmcs/vmc_sala/state (speed status)    
@@ -23,6 +23,7 @@
 ////////////////////////////////////////////////////////////////////////
   
 // include libraries
+#include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <stdio.h>
@@ -69,7 +70,7 @@
 #define SPEED_COOL 0x0007   // free cooling speed
 
 // firmware version (publishes to vmcs/<device_id>/version on startup)
-#define FW_VERSION "1.0.3"
+#define FW_VERSION "2.0.0"
 
 // variables
 uint16_t res;
@@ -110,7 +111,7 @@ WiFiClient espClient;
 // initialize mqtt client
 PubSubClient client(espClient);
 // prepare for json encoding
-StaticJsonDocument<200> doc;
+JsonDocument doc;
 
 
 

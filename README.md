@@ -35,16 +35,8 @@ To set up this integration, you will need the following hardware components:
 
 ## Software Requirements
 
-*   **Arduino IDE:** Version 2.1.0 or compatible, used for compiling and uploading the NodeMCU firmware (`.ino` file).
-*   **Arduino Libraries:** The NodeMCU firmware relies on the following libraries. Install them via the Arduino Library Manager:
-    *   `ESP8266WiFi` (usually comes with ESP8266 board support)
-    *   `PubSubClient` (by Nick O'Leary)
-    *   `ArduinoJson` (by Benoit Blanchon)
-    *   `ESPAsyncTCP` (by dvarrel)
-    *   `ESPAsyncWebServer` (by Ayush Sharma)
-    *   `ElegantOTA` (by Ayush Sharma)
-    *   `ModbusRTU` (by Alexander Emelianov)
-    *   `SoftwareSerial` (usually built-in)
+*   **PlatformIO:** Recommended for compiling and uploading the NodeMCU firmware (`platformio.ini` included).
+*   **Libraries:** All necessary libraries are automatically managed and downloaded by PlatformIO as configured in the `platformio.ini` file.
 
 *   **MQTT Server:** A running MQTT broker (e.g., Mosquitto) is essential for communication between the NodeMCU and Home Assistant.
 *   **Home Assistant:** Your Home Assistant instance with the MQTT integration configured.
@@ -66,27 +58,20 @@ The NodeMCU will connect to the RS485 converter, which then connects to the VMC 
 
 ## NodeMCU Firmware Setup
 
-1.  **Install Arduino IDE and Board Support:** Set up your Arduino IDE. Ensure you have the ESP8266 board support installed via the Boards Manager. For detailed instructions, refer to the documentation: [AZ197_A_8_7_EN_B07K24YQZQ_5e65f752_957e_4af5_9fd5_a7a1678ad12c.pdf](docs/AZ197_A_8_7_EN_B07K24YQZQ_5e65f752_957e_4af5_9fd5_a7a1678ad12c.pdf)
-2.  **Install Arduino Libraries:** Install all the required libraries listed in the "Software Requirements" section using the Arduino Library Manager (`Sketch > Include Library > Manage Libraries...`).
-    *   **Special Configuration for `ElegantOTA`:** After installing `ElegantOTA`, you must enable its asynchronous mode:
-        1.  Navigate to your Arduino libraries directory (usually `Documents/Arduino/libraries`).
-        2.  Find the `ElegantOTA` folder, then open its `src` subfolder.
-        3.  Open the file **`ElegantOTA.h`** in a text editor.
-        4.  Change the line `#define ELEGANTOTA_USE_ASYNC_WEBSERVER 0` to `#define ELEGANTOTA_USE_ASYNC_WEBSERVER 1`.
-        5.  Save the file and restart your Arduino IDE.
-3.  **Open the Firmware:** Open the provided `.ino` firmware file (`helty-nodemcu-firmware/helty-nodemcu-firmware.ino`) in the Arduino IDE.
-4.  **Configure `secrets.h`:**
-    *   Locate the `helty-nodemcu-firmware/secrets.h.template` file.
-    *   **Copy** this file and rename the copy to `helty-nodemcu-firmware/secrets.h`.
-    *   **Edit** `helty-nodemcu-firmware/secrets.h` and update your actual Wi-Fi credentials (`ssid`, `password`) and MQTT server details (`mqttServer`, `mqttPort`, `mqttUser`, `mqttPassword`). **Do not commit `secrets.h` to version control.**
-5.  **Review Configuration Parameters:**
+1.  **Install PlatformIO:** Install the PlatformIO extension in VS Code or use the PlatformIO CLI.
+2.  **Open the Project:** Open the `helty-nodemcu-firmware` folder in VS Code or navigate to it in your terminal.
+3.  **Configure `secrets.h`:**
+    *   Locate the `helty-nodemcu-firmware/src/secrets.h.template` file.
+    *   **Copy** this file and rename the copy to `helty-nodemcu-firmware/src/secrets.h`.
+    *   **Edit** `helty-nodemcu-firmware/src/secrets.h` and update your actual Wi-Fi credentials (`ssid`, `password`) and MQTT server details (`mqttServer`, `mqttPort`, `mqttUser`, `mqttPassword`). **Do not commit `secrets.h` to version control.**
+4.  **Review Configuration Parameters:**
     *   Define a unique `ESP_DEVICE_NAME` in `secrets.h` (e.g., `vmc_kitchen`, `vmc_bedroom`). This name will be used to generate device-specific MQTT topics (e.g., `vmcs/your_device_name/state`).
     *   Adjust the `MODBUS_SLAVE_ID` if your VMC unit uses a different ID than the default (often `2` in the example).
-    *   Verify or adjust the `RE_DE`, `RX`, `TX` pin definitions if your wiring differs.
+    *   Verify or adjust the `RE_DE`, `RX`, `TX` pin definitions in `src/main.cpp` if your wiring differs.
     *   Review the Modbus register definitions (`SPEED_HREG`, `INTTEMP_IREG`, `EXTTEMP_IREG`, `ALARM_IREG`) to ensure they match your VMC's Modbus map.
-6.  **Upload Firmware:** Connect your NodeMCU to your computer via USB and upload the firmware. The first upload must be wired.
-7.  **OTA Updates:** After the initial upload, you can perform subsequent updates wirelessly:
-    *   In the Arduino IDE, go to **Sketch > Export Compiled Binary** to generate a `.bin` file.
+5.  **Build and Upload Firmware:** Connect your NodeMCU to your computer via USB and upload the firmware using PlatformIO (`Upload` button in VS Code or `pio run -t upload`). The first upload must be wired.
+6.  **OTA Updates:** After the initial upload, you can perform subsequent updates wirelessly:
+    *   Use PlatformIO to generate a `.bin` file (`Build` task, outputs to `.pio/build/nodemcuv2/firmware.bin`).
     *   Open a web browser and navigate to `http://<ESP_IP>/update` (replace `<ESP_IP>` with your NodeMCU's actual IP address).
     *   Upload the generated `.bin` file through the web interface.
 

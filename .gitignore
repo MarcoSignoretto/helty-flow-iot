@@ -1,5 +1,9 @@
 # Ignore secrets file
-helty-nodemcu-firmware/secrets.h
+helty-nodemcu-firmware/src/secrets.h
 
 # Obsidian settings
 .obsidian/
+
+# PlatformIO
+.pio/
+.vscode/

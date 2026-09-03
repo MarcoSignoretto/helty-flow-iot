@@ -1,0 +1,19 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "labels": [
+    "dependencies"
+  ],
+  "dependencyDashboard": true,
+  "separateMajorMinor": true,
+  "rangeStrategy": "bump",
+  "gitAuthor": "Marco Signoretto <hermes@msignoretto.com>",
+  "packageRules": [
+    {
+      "matchPackagePatterns": ["*"],
+      "groupName": "All Dependencies"
+    }
+  ]
+}

@@ -7,3 +7,5 @@ helty-nodemcu-firmware/src/secrets.h
 # PlatformIO
 .pio/
 .vscode/
+helty-nodemcu-firmware/src/secrets_*.h
+helty-nodemcu-firmware/build/

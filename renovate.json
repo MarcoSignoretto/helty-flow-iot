@@ -8,10 +8,21 @@
   "separateMajorMinor": true,
   "rangeStrategy": "bump",
   "gitAuthor": "hermesmge <hermesmge@gmail.com>",
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update GitHub dependencies in PlatformIO lib_deps",
+      "fileMatch": ["(^|/)platformio\\.ini$"],
+      "matchStrings": [
+        "https:\\/\\/github\\.com\\/(?<depName>[^#\\s]+?)(?:\\.git)?#(?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "github-tags"
+    }
+  ],
   "packageRules": [
     {
       "description": "Group all PlatformIO firmware dependencies",
-      "matchManagers": ["platformio"],
+      "matchManagers": ["custom.regex"],
       "matchFileNames": ["helty-nodemcu-firmware/platformio.ini"],
       "groupName": "platformio-firmware-deps",
       "commitMessageTopic": "{{depName}}"

@@ -3,17 +3,27 @@
   "extends": [
     "config:recommended"
   ],
-  "labels": [
-    "dependencies"
-  ],
+  "labels": ["dependencies"],
   "dependencyDashboard": true,
   "separateMajorMinor": true,
   "rangeStrategy": "bump",
-  "gitAuthor": "Marco Signoretto <hermes@msignoretto.com>",
+  "gitAuthor": "hermesmge <hermesmge@gmail.com>",
   "packageRules": [
     {
+      "description": "Group all PlatformIO firmware dependencies",
+      "matchManagers": ["platformio"],
+      "matchFileNames": ["helty-nodemcu-firmware/platformio.ini"],
+      "groupName": "platformio-firmware-deps",
+      "commitMessageTopic": "{{depName}}"
+    },
+    {
+      "description": "Disable auto-merge for all updates",
       "matchPackagePatterns": ["*"],
-      "groupName": "All Dependencies"
+      "automerge": false
     }
+  ],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/.git/**"
   ]
 }

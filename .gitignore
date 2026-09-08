@@ -4,6 +4,10 @@ helty-nodemcu-firmware/src/secrets.h
 # Obsidian settings
 .obsidian/
 
+# Python
+__pycache__/
+*.py[cod]
+
 # PlatformIO
 .pio/
 .vscode/

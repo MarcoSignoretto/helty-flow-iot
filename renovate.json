@@ -7,7 +7,7 @@
   "dependencyDashboard": true,
   "separateMajorMinor": true,
   "rangeStrategy": "bump",
-  "gitAuthor": "Marco Signoretto <hermes@msignoretto.com>",
+  "gitAuthor": "hermesmge <hermesmge@gmail.com>",
   "packageRules": [
     {
       "description": "Group all PlatformIO firmware dependencies",

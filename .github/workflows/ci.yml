@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install PlatformIO
+        run: pip install --upgrade platformio
+
+      - name: Setup secrets template
+        run: cp helty-nodemcu-firmware/src/secrets.h.template helty-nodemcu-firmware/src/secrets.h
+
+      - name: Build firmware
+        run: pio run -d helty-nodemcu-firmware
+
+      - name: Validate Home Assistant component
+        run: python -m compileall helty_flow
